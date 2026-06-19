@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Report Tool (Demo)</title>
+    <style>
+        /* Reset và font */
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container chính - giống giao diện script */
+        .tool-container {
+            background: #111111;
+            border: 2px solid #00ff00;
+            padding: 15px;
+            color: #00ff00;
+            width: 320px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.15);
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #00ff00;
+            padding-bottom: 8px;
+        }
+
+        .header h3 {
+            margin: 0;
+            color: #ffff00;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-minimize {
+            background: #444;
+            color: #fff;
+            border: 1px solid #0f0;
+            padding: 3px 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .mode-buttons button {
+            flex: 1;
+            background: #222;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 6px 0;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .mode-buttons button.active {
+            background: #008000;
+            color: #fff;
+        }
+
+        .info-text {
+            color: #00ffff;
+            font-size: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+
+        .info-text .sub {
+            font-size: 9px;
+            color: #ffaa00;
+            font-style: italic;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: #1a1a1a;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            margin-bottom: 12px;
+        }
+
+        .settings-grid .full-width {
+            grid-column: span 2;
+        }
+
+        .settings-grid label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #aaa;
+            display: block;
+        }
+
+        .settings-grid input {
+            width: 100%;
+            margin-top: 3px;
+            background: #222;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 5px;
+            box-sizing: border-box;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 3px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 8px 0;
+            font-weight: bold;
+            font-size: 12px;
+            border: 1px solid #00ff00;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-start {
+            background: #008000;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #b30000;
+            color: white;
+            border-color: #ff0000;
+        }
+
+        .status-text {
+            color: cyan;
+            font-size: 11px;
+            text-align: center;
+            padding-top: 8px;
+            border-top: 1px dashed #0f0;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .timer-box {
+            background: #222;
+            text-align: center;
+            padding: 5px 0;
+            margin-bottom: 8px;
+            font-weight: bold;
+            border: 1px solid #00e5ff;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+
+        .timer-box span {
+            color: #ffaa00;
+            font-size: 13px;
+        }
+
+        .alert-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #1a1a1a;
+            padding: 6px;
+            border-radius: 3px;
+            border: 1px solid #333;
+            margin-bottom: 8px;
+        }
+
+        .alert-checkbox input {
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            accent-color: #0f0;
+        }
+
+        .alert-checkbox label {
+            cursor: pointer;
+            color: #0f0;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .cookie-area {
+            background: #1a1a1a;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #008000;
+            margin-bottom: 12px;
+        }
+
+        .cookie-area label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ffaa00;
+        }
+
+        .cookie-area textarea {
+            width: 100%;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background: #222;
+            color: #0f0;
+            border: 1px dashed #0f0;
+            padding: 5px;
+            box-sizing: border-box;
+            font-size: 10px;
+            resize: none;
+            border-radius: 3px;
+            font-family: monospace;
+            height: 50px;
+        }
+
+        .cookie-area button {
+            width: 100%;
+            background: #ffaa00;
+            color: #000;
+            border: 1px solid #ffaa00;
+            padding: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            border-radius: 3px;
+        }
+
+        .log-area {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 10px;
+            color: #aaa;
+            margin-top: 8px;
+        }
+
+        .log-area .log-success {
+            color: #0f0;
+        }
+
+        .log-area .log-error {
+            color: #ff4444;
+        }
+
+        .log-area .log-info {
+            color: #00ffff;
+        }
+
+        /* Scrollbar */
+        .log-area::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-area::-webkit-scrollbar-track {
+            background: #111;
+        }
+
+        .log-area::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .log-area::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-start:disabled, .btn-stop:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="tool-container" id="toolContainer">
+    <!-- Header -->
+    <div class="header">
+        <h3>🔰 Auto Report Pro</h3>
+        <button class="btn-minimize" id="btnMinimize">➖ Thu gọn</button>
+    </div>
+
+    <!-- Nội dung chính (có thể toggle) -->
+    <div id="menuContent">
+        <!-- Mode buttons -->
+        <div class="mode-buttons">
+            <button id="btnModePC" class="active">🖥️ MÁY TÍNH</button>
+            <button id="btnModeMobile">📱 ĐIỆN THOẠI</button>
+        </div>
+
+        <!-- Info -->
+        <div class="info-text">
+            TOOL BẢN QUYỀN LÊ HOÀNG ANH KIỆT - TELE:@AKIOS999<br>
+            <span class="sub">Hãy là 1 dev văn minh tôn trọng quyền tác giả, xin cảm ơn!</span>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-grid">
+            <div>
+                <label>Số vòng:</label>
+                <input type="number" id="inpLoops" value="1" min="1">
+            </div>
+            <div>
+                <label>Độ trễ (ms):</label>
+                <input type="number" id="inpSpeed" value="100" min="0">
+            </div>
+            <div class="full-width">
+                <label>Nghỉ giữa các vòng (Phút):</label>
+                <input type="number" id="inpDelayMinutes" value="0" min="0" step="0.1" placeholder="VD: 1 hoặc 0.5">
+            </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-box">
+            ⏳ THỜI GIAN CHẠY: <span id="timerVIP">00:00:00</span>
+        </div>
+
+        <!-- Alert checkbox -->
+        <div class="alert-checkbox">
+            <input type="checkbox" id="chkAlert" checked>
+            <label for="chkAlert">🔊 Bật cảnh báo (Ting ting)</label>
+        </div>
+
+        <!-- Cookie area -->
+        <div class="cookie-area">
+            <label>🍪 Dán Cookie vào đây (Tự động lưu rác):</label>
+            <textarea id="inpCookieData" placeholder="Ví dụ: c_user=1000...; xs=..."></textarea>
+            <button id="btnInjectCookie">🔑 LOGIN COOKIE NGAY</button>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-buttons">
+            <button class="btn-start" id="btnStartTool">▶️ BẮT ĐẦU</button>
+            <button class="btn-stop" id="btnStopTool">⏹️ DỪNG</button>
+        </div>
+
+        <!-- Status -->
+        <div class="status-text" id="statusText">Trạng thái: Đang chờ lệnh...</div>
+
+        <!-- Log area -->
+        <div class="log-area" id="logArea">
+            <div class="log-info">🚀 Tool đã sẵn sàng. Nhấn "Bắt đầu" để chạy mô phỏng.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ========== DOM refs ==========
+        const menuContent = document.getElementById('menuContent');
+        const btnMinimize = document.getElementById('btnMinimize');
+        const btnModePC = document.getElementById('btnModePC');
+        const btnModeMobile = document.getElementById('btnModeMobile');
+        const btnStart = document.getElementById('btnStartTool');
+        const btnStop = document.getElementById('btnStopTool');
+        const btnInjectCookie = document.getElementById('btnInjectCookie');
+        const inpLoops = document.getElementById('inpLoops');
+        const inpSpeed = document.getElementById('inpSpeed');
+        const inpDelayMinutes = document.getElementById('inpDelayMinutes');
+        const inpCookieData = document.getElementById('inpCookieData');
+        const chkAlert = document.getElementById('chkAlert');
+        const statusText = document.getElementById('statusText');
+        const timerVIP = document.getElementById('timerVIP');
+        const logArea = document.getElementById('logArea');
+
+        // ========== State ==========
+        let isRunning = false;
+        let isPaused = false; // Not used in this simple version, but kept for structure
+        let currentMode = 'pc'; // 'pc' or 'mobile'
+        let intervalId = null;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let stopRequested = false;
+
+        // ========== Helper: Log ==========
+        function addLog(message, type = 'info') {
+            const div = document.createElement('div');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            if (type === 'success') div.classList.add('log-success');
+            else if (type === 'error') div.classList.add('log-error');
+            else div.classList.add('log-info');
+            logArea.appendChild(div);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // ========== Timer ==========
+        function updateTimerDisplay() {
+            const hours = String(Math.floor(secondsElapsed / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((secondsElapsed % 3600) / 60)).padStart(2, '0');
+            const secs = String(secondsElapsed % 60).padStart(2, '0');
+            timerVIP.textContent = `${hours}:${minutes}:${secs}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            secondsElapsed = 0;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            secondsElapsed = 0;
+            updateTimerDisplay();
+        }
+
+        // ========== Simulation logic ==========
+        function simulateReport(loopIndex, totalLoops) {
+            return new Promise((resolve) => {
+                const speed = parseInt(inpSpeed.value) || 100;
+                const delay = parseFloat(inpDelayMinutes.value) || 0;
+                const isAlert = chkAlert.checked;
+
+                // Log bắt đầu vòng
+                addLog(`🔄 Bắt đầu vòng ${loopIndex}/${totalLoops} (Chế độ: ${currentMode.toUpperCase()})`, 'info');
+
+                // Mô phỏng tìm và click (giống script)
+                setTimeout(() => {
+                    // Mô phỏng tìm nút Report
+                    addLog(`🔍 Đang tìm nút "Report" trên ${currentMode === 'pc' ? 'PC' : 'Mobile'}...`, 'info');
+                    
+                    setTimeout(() => {
+                        // Mô phỏng click Report
+                        addLog(`🖱️ Đã click "Report" (mô phỏng)`, 'success');
+                        
+                        setTimeout(() => {
+                            // Mô phỏng chọn lý do
+                            const reasons = [
+                                'Something about this profile',
+                                'Fake profile',
+                                'A celebrity or public figure',
+                                'Violent, hateful or disturbing content',
+                                'Scam, fraud or false information'
+                            ];
+                            const randomReason = reasons[Math.floor(Math.random() * reasons.length)];
+                            addLog(`📝 Đã chọn lý do: "${randomReason}"`, 'info');
+                            
+                            setTimeout(() => {
+                                // Mô phỏng submit
+                                addLog(`✅ Đã gửi báo cáo thành công! (Mô phỏng)`, 'success');
+                                
+                                if (isAlert) {
+                                    addLog(`🔔 Ting Ting! Đã báo cáo thành công vòng ${loopIndex}`, 'success');
+                                }
+
+                                // Nếu có delay giữa các vòng và chưa phải vòng cuối
+                                if (delay > 0 && loopIndex < totalLoops) {
+                                    const delayMs = delay * 60 * 1000;
+                                    addLog(`⏳ Nghỉ ${delay} phút trước vòng tiếp theo...`, 'info');
+                                    setTimeout(() => {
+                                        resolve();
+                                    }, Math.min(delayMs, 60000)); // Giới hạn 60s để test
+                                } else {
+                                    resolve();
+                                }
+                            }, 300 + Math.random() * 400);
+                        }, 400 + Math.random() * 600);
+                    }, 500 + Math.random() * 800);
+                }, 300 + Math.random() * 500);
+            });
+        }
+
+        // ========== Main run ==========
+        async function runTool() {
+            if (isRunning) return;
+            
+            const totalLoops = parseInt(inpLoops.value) || 1;
+            if (totalLoops < 1) {
+                addLog('⚠️ Số vòng phải lớn hơn 0!', 'error');
+                return;
+            }
+
+            isRunning = true;
+            stopRequested = false;
+            btnStart.disabled = true;
+            btnStop.disabled = false;
+            statusText.textContent = 'Trạng thái: Đang chạy...';
+            addLog(`🚀 Bắt đầu tool với ${totalLoops} vòng, chế độ ${currentMode.toUpperCase()}`, 'info');
+            startTimer();
+
+            try {
+                for (let i = 1; i <= totalLoops; i++) {
+                    if (stopRequested) {
+                        addLog('⏹️ Đã dừng theo yêu cầu.', 'error');
+                        break;
+                    }
+                    await simulateReport(i, totalLoops);
+                }
+
+                if (!stopRequested) {
+                    addLog('🎉 Hoàn thành tất cả các vòng!', 'success');
+                    statusText.textContent = 'Trạng thái: Hoàn thành!';
+                    if (chkAlert.checked) {
+                        addLog('🔔 Ting Ting! Tool đã hoàn thành!', 'success');
+                    }
+                }
+            } catch (error) {
+                addLog(`❌ Lỗi: ${error.message}`, 'error');
+                statusText.textContent = 'Trạng thái: Lỗi!';
+            } finally {
+                isRunning = false;
+                btnStart.disabled = false;
+                btnStop.disabled = true;
+                stopTimer();
+                if (!stopRequested) {
+                    // Nếu hoàn thành tự nhiên, không reset timer
+                } else {
+                    resetTimer();
+                }
+                statusText.textContent = stopRequested ? 'Trạng thái: Đã dừng' : 'Trạng thái: Hoàn thành';
+            }
+        }
+
+        // ========== Stop ==========
+        function stopTool() {
+            if (!isRunning) return;
+            stopRequested = true;
+            addLog('⏳ Đang yêu cầu dừng...', 'info');
+            statusText.textContent = 'Trạng thái: Đang dừng...';
+            btnStop.disabled = true;
+        }
+
+        // ========== Mode switching ==========
+        function setMode(mode) {
+            currentMode = mode;
+            if (mode === 'pc') {
+                btnModePC.classList.add('active');
+                btnModeMobile.classList.remove('active');
+                addLog('🖥️ Chuyển sang chế độ MÁY TÍNH', 'info');
+            } else {
+                btnModeMobile.classList.add('active');
+                btnModePC.classList.remove('active');
+                addLog('📱 Chuyển sang chế độ ĐIỆN THOẠI', 'info');
+            }
+        }
+
+        // ========== Cookie Inject (Simulation) ==========
+        function injectCookie() {
+            const cookieData = inpCookieData.value.trim();
+            if (!cookieData) {
+                addLog('⚠️ Vui lòng nhập Cookie!', 'error');
+                return;
+            }
+            // Mô phỏng parse cookie
+            const cookies = cookieData.split(';').map(c => c.trim());
+            let found = false;
+            cookies.forEach(c => {
+                if (c.startsWith('c_user=') || c.startsWith('xs=')) {
+                    found = true;
+                }
+            });
+            if (found) {
+                addLog('🍪 Cookie đã được áp dụng (Mô phỏng)!', 'success');
+                // Lưu vào localStorage để mô phỏng
+                localStorage.setItem('simulated_cookie', cookieData);
+                addLog('💾 Đã lưu Cookie vào bộ nhớ tạm (localStorage)', 'info');
+            } else {
+                addLog('⚠️ Cookie không hợp lệ (thiếu c_user hoặc xs)!', 'error');
+            }
+        }
+
+        // ========== UI toggle ==========
+        let isMinimized = false;
+        function toggleMinimize() {
+            isMinimized = !isMinimized;
+            menuContent.style.display = isMinimized ? 'none' : 'block';
+            btnMinimize.textContent = isMinimized ? '➕ Mở rộng' : '➖ Thu gọn';
+        }
+
+        // ========== Event listeners ==========
+        btnStart.addEventListener('click', runTool);
+        btnStop.addEventListener('click', stopTool);
+        btnModePC.addEventListener('click', () => setMode('pc'));
+        btnModeMobile.addEventListener('click', () => setMode('mobile'));
+        btnMinimize.addEventListener('click', toggleMinimize);
+        btnInjectCookie.addEventListener('click', injectCookie);
+
+        // ========== Initialize ==========
+        setMode('pc');
+        statusText.textContent = 'Trạng thái: Sẵn sàng';
+        addLog('🛠️ Tool đã sẵn sàng. Đây là phiên bản MÔ PHỎNG.', 'info');
+        addLog('⚠️ Không gửi báo cáo thực tế đến Facebook.', 'error');
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            if (intervalId) clearInterval(intervalId);
+            if (timerInterval) clearInterval(timerInterval);
+        });
+
+    })();
+</script>
+
+</body>
+</html>
